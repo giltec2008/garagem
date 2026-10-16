@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Garagem">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<title>Garagem</title>
+<style>
+:root{
+  --bg:#f2f2f7;--card:#fff;--text:#000;--muted:#8e8e93;--sep:rgba(60,60,67,.2);
+  --tint:#007aff;--red:#ff3b30;--green:#34c759;--orange:#ff9500;--fill:rgba(118,118,128,.12);
+  --bar:rgba(249,249,249,.88);--hero1:#0b3d66;--hero2:#0a84ff;
+  --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#000;--card:#1c1c1e;--text:#fff;--muted:#8e8e93;--sep:rgba(84,84,88,.65);
+  --tint:#0a84ff;--red:#ff453a;--green:#30d158;--orange:#ff9f0a;--fill:rgba(118,118,128,.24);
+  --bar:rgba(22,22,24,.88);--hero1:#0a2540;--hero2:#0a6fd6;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;touch-action:manipulation;max-width:520px;margin:0 auto;min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--text)}
+[hidden]{display:none!important}
+
+/* barra superior */
+.top{position:sticky;top:0;z-index:20;padding:calc(var(--st) + 8px) 16px 8px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep)}
+.top .brand{font-weight:600;font-size:17px}
+.chip{display:flex;align-items:center;gap:4px;max-width:62%;padding:6px 12px;border-radius:999px;background:var(--fill);color:var(--tint);font-size:15px;font-weight:600}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+main{padding-bottom:calc(84px + var(--sb))}
+.view{display:none}.view.active{display:block}
+h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:.2px;margin:14px 16px 14px}
+.ghead{margin:0 32px 7px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.2px}
+.gfoot{margin:-14px 32px 22px;font-size:13px;color:var(--muted)}
+.group{background:var(--card);border-radius:12px;overflow:hidden;margin:0 16px 24px}
+.row{display:flex;align-items:center;gap:12px;padding:11px 16px;min-height:46px;position:relative;width:100%;text-align:left}
+.row+.row::before{content:"";position:absolute;top:0;left:16px;right:0;border-top:.5px solid var(--sep)}
+.row .grow{flex:1;min-width:0}
+.row .sub{font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .val{color:var(--muted);text-align:right}
+.row .amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chev{color:#c4c4c7;font-size:20px;margin-left:-4px}
+.row.link{color:var(--tint)}
+.row.danger{color:var(--red);justify-content:center}
+button.row:active,label.row:active{background:var(--fill)}
+
+/* campos */
+.row label{flex:0 0 auto;min-width:96px}
+.row input,.row select,.row textarea{flex:1;min-width:0;border:0;background:none;outline:none;font-size:17px;padding:0;-webkit-appearance:none;appearance:none}
+.row input.right,.row select{text-align:right;text-align-last:right;color:var(--muted)}
+.row input.right:focus{color:var(--text)}
+.row input[type=date]{text-align:right;color:var(--tint);min-height:24px;display:flex;justify-content:flex-end}
+.row input[type=date]::-webkit-date-and-time-value{text-align:right}
+.row textarea{resize:none;min-height:66px}
+::placeholder{color:#b0b0b5}
+@media (prefers-color-scheme:dark){::placeholder{color:#636366}}
+.btn{display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:15px;border-radius:14px;background:var(--tint);color:#fff;font-weight:600;font-size:17px;text-align:center}
+.btn:active{opacity:.75}.btn:disabled{opacity:.45}
+.btn.plain{background:var(--card);color:var(--tint)}
+.btn.red{background:var(--card);color:var(--red)}
+
+/* resumo */
+.hero{margin:0 16px 24px;padding:20px;border-radius:20px;color:#fff;background:linear-gradient(140deg,var(--hero1),var(--hero2))}
+.hero .lbl{font-size:15px;opacity:.85}
+.hero .big{font-size:42px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;margin:2px 0 14px}
+.meter{height:8px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:#fff}
+.meter.warn i{background:#ffd60a}.meter.over i{background:#ff6961}
+.hero .foot{display:flex;justify-content:space-between;font-size:14px;margin-top:8px;opacity:.92}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 16px 24px}
+.stat{background:var(--card);border-radius:14px;padding:13px 14px}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.cbar{height:6px;border-radius:99px;background:var(--fill);margin-top:6px;overflow:hidden}
+.cbar i{display:block;height:100%;background:var(--tint);border-radius:99px}
+.dot{width:34px;height:34px;flex:0 0 34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:700;object-fit:cover}
+.empty{text-align:center;color:var(--muted);padding:40px 32px}
+.empty .ic{font-size:54px;margin-bottom:8px}
+.notice{margin:0 16px 20px;padding:14px 16px;border-radius:14px;background:var(--card);font-size:15px}
+.notice b{display:block;margin-bottom:4px;font-size:16px}
+.notice ol{margin:6px 0 8px;padding-left:20px}
+.notice .x{color:var(--tint);font-weight:600;margin-top:4px}
+.notice.warn{border-left:4px solid var(--orange)}
+
+/* histórico */
+.search{margin:0 16px 18px;display:flex;align-items:center;gap:6px;background:var(--fill);border-radius:10px;padding:8px 10px;color:var(--muted)}
+.search input{flex:1;border:0;background:none;outline:none;font-size:17px;-webkit-appearance:none}
+.thumbs{display:flex;gap:4px;margin-top:6px}
+.thumbs img{width:38px;height:38px;border-radius:6px;object-fit:cover}
+
+/* fotos no formulário */
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px}
+.ptile{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--fill)}
+.ptile img{width:100%;height:100%;object-fit:cover;display:block}
+.ptile .del{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:15px;line-height:24px;text-align:center}
+.padd{display:grid;place-items:center;aspect-ratio:1;border-radius:10px;background:var(--fill);color:var(--tint);font-size:13px;text-align:center;cursor:pointer}
+.padd svg{width:26px;height:26px;display:block;margin:0 auto 2px}
+.padd input{display:none}
+.linetotal{display:flex;justify-content:space-between;font-weight:600}
+
+/* barra de separadores */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;max-width:520px;margin:0 auto;
+  padding:6px 4px calc(var(--sb) + 4px);background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep)}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:500;color:var(--muted);padding:2px 0}
+.tabbar button.on{color:var(--tint)}
+.tabbar svg{width:27px;height:27px}
+
+/* folha inferior */
+.backdrop{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0);transition:background .25s}
+.backdrop.open{background:rgba(0,0,0,.4)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;max-height:92vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:var(--bg);border-radius:14px 14px 0 0;padding-bottom:calc(var(--sb) + 16px);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.backdrop.open .sheet{transform:none}
+.sheet-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg)}
+.sheet-head b{font-size:17px}
+.sheet-head button{color:var(--tint);font-weight:600}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--sep);margin:7px auto 0}
+.detail-amt{text-align:center;font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;margin:4px 16px 18px}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 16px 24px}
+.gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block}
+.check{color:var(--tint);font-weight:700}
+
+/* visualizador de fotos */
+.viewer{position:fixed;inset:0;z-index:70;background:#000;display:flex;align-items:center;justify-content:center}
+.viewer img{max-width:100%;max-height:100%;object-fit:contain}
+.viewer .vbar{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:calc(var(--st) + 10px) 16px 10px}
+.viewer .vbar button{color:#fff;font-weight:600;background:rgba(255,255,255,.16);padding:7px 14px;border-radius:99px}
+
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--sb));transform:translateX(-50%) translateY(20px);z-index:80;opacity:0;pointer-events:none;
+  background:rgba(30,30,32,.94);color:#fff;padding:11px 18px;border-radius:99px;font-size:15px;font-weight:500;transition:.25s;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* relatório */
+#report{display:none;background:#fff;color:#18273b;min-height:100vh;font:13px Arial,Helvetica,sans-serif}
+body.reporting #app,body.reporting .tabbar{display:none}
+body.reporting #report{display:block}
+.rtools{position:sticky;top:0;display:flex;justify-content:space-between;gap:10px;padding:calc(var(--st) + 10px) 14px 10px;background:#f2f2f7;border-bottom:1px solid #ddd}
+.rtools button{padding:9px 16px;border-radius:10px;font-weight:600;color:#007aff;background:#fff}
+.rtools button.p{background:#007aff;color:#fff}
+.rbody{padding:16px}
+.rbody h2{font-size:20px;margin:0 0 4px}.rbody h3{font-size:16px;border-bottom:2px solid #243c5a;padding-bottom:5px;margin:22px 0 6px}
+.rbody table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+.rbody th,.rbody td{border:1px solid #c9d2dc;padding:5px;text-align:left;overflow-wrap:anywhere;vertical-align:top}
+.rbody th{background:#e9eef5}.rbody .n{text-align:right;white-space:nowrap}
+.rbody .tot{text-align:right;font-weight:700;margin:6px 0}
+.rbody .ph{break-inside:avoid;margin:8px 0}.rbody .ph img{width:110px;height:88px;object-fit:cover;margin:3px;border:1px solid #ddd}
+.rbody .grand{font-size:18px;font-weight:700;margin-top:18px}
+@media print{
+  @page{size:A4;margin:12mm}
+  .rtools,.hint-pdf{display:none}
+  #report{min-height:0}
+  .rbody{padding:0}
+  .rbody thead{display:table-header-group}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <span class="brand">Garagem</span>
+    <button class="chip" id="carChip" type="button" onclick="openCarPicker()"><span id="chipName">Sem carro</span><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+  </header>
+
+  <main>
+    <p id="jsWarn" class="notice warn"><b>A app não arrancou</b>A pré-visualização da app Ficheiros, do WhatsApp ou do e-mail não executa programas. Abre o endereço da app no Safari.</p>
+
+    <!-- RESUMO -->
+    <section class="view active" id="v-resumo">
+      <h1>Resumo</h1>
+      <div id="installCard"></div>
+      <div id="resumoBody"></div>
+    </section>
+
+    <!-- NOVA / EDITAR DESPESA -->
+    <section class="view" id="v-nova">
+      <h1 id="formTitle">Nova despesa</h1>
+      <div class="group">
+        <div class="row"><input id="f-item" placeholder="Peça ou trabalho realizado" enterkeyhint="next" autocomplete="off"></div>
+        <div class="row"><label for="f-cat">Categoria</label>
+          <select id="f-cat"><option>Peças</option><option>Mecânica</option><option>Pintura</option><option>Ferramentas</option><option>Mão de obra</option><option>Outros</option></select></div>
+      </div>
+      <div class="group">
+        <div class="row"><label for="f-qty">Quantidade</label><input id="f-qty" class="right" inputmode="decimal" value="1" oninput="updateLineTotal()"></div>
+        <div class="row"><label for="f-price">Preço unitário</label><input id="f-price" class="right" inputmode="decimal" placeholder="0,00 €" oninput="updateLineTotal()"></div>
+        <div class="row linetotal"><span>Total</span><span id="lineTotal">0,00 €</span></div>
+      </div>
+      <div class="group">
+        <div class="row"><label for="f-date">Data</label><input id="f-date" type="date"></div>
+        <div class="row"><input id="f-sup" placeholder="Fornecedor (opcional)" autocomplete="off"></div>
+        <div class="row"><textarea id="f-notes" placeholder="Notas (opcional)"></textarea></div>
+      </div>
+      <p class="ghead">Fotografias</p>
+      <div class="group"><div class="pgrid" id="f-photos"></div></div>
+      <button class="btn" id="saveBtn" type="button" onclick="saveExpense()">Guardar despesa</button>
+      <button class="btn plain" id="cancelEdit" type="button" onclick="cancelEdit()" hidden>Cancelar edição</button>
+      <div style="height:12px"></div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section class="view" id="v-hist">
+      <h1>Histórico</h1>
+      <label class="search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Procurar" oninput="renderHist()"></label>
+      <div id="histBody"></div>
+    </section>
+
+    <!-- MAIS -->
+    <section class="view" id="v-mais">
+      <h1>Mais</h1>
+      <div id="maisBody"></div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" id="tabbar">
+  <button type="button" data-v="resumo" class="on" onclick="show('resumo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 18a9 9 0 1 1 16.8 0"/><path d="M12 14l4.2-4.2"/><circle cx="12" cy="14" r="1.3" fill="currentColor"/></svg>Resumo</button>
+  <button type="button" data-v="nova" onclick="newExpense()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Despesa</button>
+  <button type="button" data-v="hist" onclick="show('hist')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg>Histórico</button>
+  <button type="button" data-v="mais" onclick="show('mais')"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>Mais</button>
+</nav>
+
+<div class="backdrop" id="sheet" hidden onclick="if(event.target===this)closeSheet()">
+  <div class="sheet"><div class="grab"></div>
+    <div class="sheet-head"><span style="width:60px"></span><b id="sheetTitle"></b><button type="button" onclick="closeSheet()" style="width:60px;text-align:right">Fechar</button></div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" hidden onclick="if(event.target===this)this.hidden=true">
+  <div class="vbar"><button type="button" onclick="$('viewer').hidden=true">Fechar</button><button type="button" onclick="savePhoto()">Guardar foto</button></div>
+  <img id="viewerImg" alt="Fotografia">
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="report"></div>
+
+<script>
+document.getElementById('jsWarn').hidden = true;
+
+/* ---------- utilitários ---------- */
+const $ = id => document.getElementById(id);
+const KEY = 'garagem_manager_v1', SEL_KEY = 'garagem_sel', HINT_KEY = 'garagem_hint_off';
+const CATS = {'Peças':'#0a84ff','Mecânica':'#ff9f0a','Pintura':'#bf5af2','Ferramentas':'#64d2ff','Mão de obra':'#30d158','Outros':'#8e8e93'};
+const money = n => Number(n || 0).toLocaleString('pt-PT', {style:'currency', currency:'EUR'});
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const today = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); };
+const fmtDate = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : (s || ''); };
+const fmtNum = n => String(n).replace('.', ',');
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+// Aceita "12,50", "12.50" e "1.234,50"
+function parseNum(v) { v = String(v ?? '').trim().replace(/\s|€/g, ''); if (v === '') return NaN; if (v.includes(',')) v = v.replace(/\./g, '').replace(',', '.'); return Number(v); }
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k === 'style') el.style.cssText = v;
+    else if (k.startsWith('on')) el[k] = v;
+    else if (k === 'value') el.value = v;
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) { if (c == null || c === false) continue; el.append(c instanceof Node ? c : document.createTextNode(String(c))); }
+  return el;
+}
+let toastTimer;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200); }
+function showError(msg) { toast('Erro: ' + msg); }
+window.addEventListener('error', e => showError(e.message));
+window.addEventListener('unhandledrejection', e => showError((e.reason && e.reason.message) || e.reason));
+
+/* ---------- dados (localStorage) ---------- */
+let db = {cars: []}, storageOK = true, idb = null, busy = false, selId = null;
+const photoCache = new Map();
+function normalize(d) {
+  if (!d || !Array.isArray(d.cars)) d = {cars: []};
+  d.cars.forEach(c => {
+    c.id = String(c.id || newId()); c.name = String(c.name || 'Sem nome'); c.budget = Number(c.budget) || 0;
+    if (!Array.isArray(c.expenses)) c.expenses = [];
+    c.expenses.forEach(e => { e.id = String(e.id || newId()); e.qty = Number(e.qty) || 0; e.price = Number(e.price) || 0; e.category = e.category || 'Outros'; });
+  });
+  return d;
+}
+try { localStorage.setItem('gm_test', '1'); localStorage.removeItem('gm_test'); } catch (e) { storageOK = false; }
+if (storageOK) {
+  const raw = localStorage.getItem(KEY);
+  if (raw) { try { db = JSON.parse(raw); } catch (e) { try { localStorage.setItem(KEY + '_danificado', raw); } catch (_) {} alert('Os dados guardados estavam danificados. Foi guardada uma cópia e a app começa vazia.'); } }
+  try { selId = localStorage.getItem(SEL_KEY); } catch (_) {}
+}
+db = normalize(db);
+
+function save() {
+  if (!storageOK) return true;
+  try { localStorage.setItem(KEY, JSON.stringify(db)); return true; }
+  catch (e) { alert('Sem espaço para guardar. Elimina registos antigos ou exporta uma cópia de segurança.'); return false; }
+}
+function car() { return db.cars.find(c => c.id === selId) || db.cars[0] || null; }
+function selectCar(id) { selId = id; try { localStorage.setItem(SEL_KEY, id); } catch (_) {} renderAll(); }
+const sumOf = c => c.expenses.reduce((s, e) => s + e.qty * e.price, 0);
+
+/* ---------- fotografias (IndexedDB) ---------- */
+function idbOpen() { return new Promise(res => { try { if (!window.indexedDB) return res(null); const r = indexedDB.open('garagem_fotos', 1); r.onupgradeneeded = () => r.result.createObjectStore('photos'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); } catch (e) { res(null); } }); }
+function idbTx(fn) { return new Promise((res, rej) => { const tx = idb.transaction('photos', 'readwrite'); fn(tx.objectStore('photos')); tx.oncomplete = () => res(); tx.onerror = tx.onabort = () => rej(tx.error || Error('Não foi possível guardar as fotografias')); }); }
+function idbLoadAll() { return new Promise((res, rej) => { const tx = idb.transaction('photos', 'readonly'), st = tx.objectStore('photos'), k = st.getAllKeys(), v = st.getAll(); tx.oncomplete = () => { k.result.forEach((key, i) => photoCache.set(key, v.result[i])); res(); }; tx.onerror = () => rej(tx.error); }); }
+const photosOf = e => [...(e.photoIds || []).map(id => photoCache.get(id)).filter(Boolean), ...(e.photos || []), ...(e.photo ? [e.photo] : [])];
+async function storePhotos(list) { const items = list.map(src => [newId(), src]); await idbTx(st => items.forEach(([k, v]) => st.put(v, k))); items.forEach(([k, v]) => photoCache.set(k, v)); return items.map(i => i[0]); }
+async function deletePhotoIds(ids) { if (!idb || !ids.length) return; try { await idbTx(st => ids.forEach(k => st.delete(k))); ids.forEach(k => photoCache.delete(k)); } catch (_) {} }
+async function migrate() {
+  if (!idb) return false; let changed = false;
+  for (const c of db.cars) for (const e of c.expenses) {
+    const inline = [...(e.photos || []), ...(e.photo ? [e.photo] : [])];
+    if (inline.length) { e.photoIds = [...(e.photoIds || []), ...await storePhotos(inline)]; delete e.photos; delete e.photo; changed = true; }
+  }
+  return changed;
+}
+function compressPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onerror = () => { URL.revokeObjectURL(url); reject(Error('Formato de imagem não suportado')); };
+    img.onload = () => {
+      const scale = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight));
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(img.naturalWidth * scale)); cv.height = Math.max(1, Math.round(img.naturalHeight * scale));
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url); resolve(cv.toDataURL('image/jpeg', 0.72));
+    };
+    img.src = url;
+  });
+}
+
+/* ---------- navegação ---------- */
+let current = 'resumo';
+function show(v) {
+  current = v;
+  document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
+  document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  window.scrollTo(0, 0);
+}
+function openSheet(title, ...content) {
+  $('sheetTitle').textContent = title; $('sheetBody').replaceChildren(...content.flat(2).filter(Boolean));
+  const s = $('sheet'); s.hidden = false; s.firstElementChild.scrollTop = 0;
+  requestAnimationFrame(() => requestAnimationFrame(() => s.classList.add('open')));
+}
+function closeSheet() { const s = $('sheet'); s.classList.remove('open'); setTimeout(() => { if (!s.classList.contains('open')) s.hidden = true; }, 280); }
+let viewerSrc = '';
+function openPhoto(src) { viewerSrc = src; $('viewerImg').src = src; $('viewer').hidden = false; }
+async function savePhoto() {
+  const blob = await (await fetch(viewerSrc)).blob();
+  await shareFile(new File([blob], 'garagem_foto_' + today() + '.jpg', {type: 'image/jpeg'}));
+}
+
+/* ---------- partilha / ficheiros ---------- */
+async function shareFile(file) {
+  if (navigator.canShare && navigator.canShare({files: [file]})) {
+    try { await navigator.share({files: [file]}); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const u = URL.createObjectURL(file), a = h('a', {href: u, download: file.name});
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+}
+
+/* ---------- carros ---------- */
+function openCarPicker() {
+  const rows = db.cars.map(c => h('button', {class: 'row', type: 'button', onclick: () => { selectCar(c.id); closeSheet(); }},
+    h('div', {class: 'grow'}, h('div', {class: 'title', text: c.name}), h('div', {class: 'sub', text: c.expenses.length + ' despesas · ' + money(sumOf(c))})),
+    car() && car().id === c.id ? h('span', {class: 'check', text: '✓'}) : null));
+  openSheet('Os teus carros',
+    rows.length ? h('div', {class: 'group'}, rows) : null,
+    h('div', {class: 'group'}, h('button', {class: 'row link', type: 'button', onclick: () => openCarSheet(null)}, '＋ Adicionar carro')));
+}
+function openCarSheet(c) {
+  const name = h('input', {placeholder: 'Ex.: Smart 450 de 2003', value: c ? c.name : '', autocomplete: 'off', enterkeyhint: 'done'});
+  const budget = h('input', {class: 'right', inputmode: 'decimal', placeholder: 'Opcional', value: c && c.budget ? fmtNum(c.budget) : ''});
+  const content = [
+    h('p', {class: 'ghead', text: 'Carro'}),
+    h('div', {class: 'group'}, h('div', {class: 'row'}, name)),
+    h('p', {class: 'ghead', text: 'Orçamento previsto'}),
+    h('div', {class: 'group'}, h('div', {class: 'row'}, h('label', {text: 'Orçamento'}), budget)),
+    h('button', {class: 'btn', type: 'button', text: c ? 'Guardar alterações' : 'Adicionar carro', onclick: () => {
+      const n = name.value.trim(); if (!n) { name.focus(); return toast('Escreve o nome do carro'); }
+      const b = budget.value.trim() === '' ? 0 : parseNum(budget.value);
+      if (!Number.isFinite(b) || b < 0) { budget.focus(); return toast('Orçamento inválido. Ex.: 1500 ou 1500,50'); }
+      if (c) { const old = {...c}; c.name = n; c.budget = b; if (!save()) { Object.assign(c, old); return; } toast('Carro atualizado'); }
+      else { const nc = {id: newId(), name: n, budget: b, expenses: []}; db.cars.push(nc); if (!save()) { db.cars.pop(); return; } selId = nc.id; try { localStorage.setItem(SEL_KEY, nc.id); } catch (_) {} toast('Carro adicionado'); }
+      closeSheet(); renderAll();
+    }})
+  ];
+  if (c) content.push(h('button', {class: 'btn red', type: 'button', text: 'Eliminar carro', onclick: () => deleteCar(c)}));
+  openSheet(c ? 'Editar carro' : 'Novo carro', content);
+  if (!c) setTimeout(() => name.focus(), 350);
+}
+async function deleteCar(c) {
+  if (!confirm('Eliminar "' + c.name + '" e as suas ' + c.expenses.length + ' despesas? Esta ação não pode ser desfeita.')) return;
+  const ids = c.expenses.flatMap(e => e.photoIds || []);
+  db.cars = db.cars.filter(x => x.id !== c.id);
+  if (!save()) { db = normalize(JSON.parse(localStorage.getItem(KEY))); return; }
+  await deletePhotoIds(ids); closeSheet(); toast('Carro eliminado'); renderAll();
+}
+
+/* ---------- formulário de despesa ---------- */
+let editId = null, existing = [], pending = [];   // existing: [{id?, src}] ; pending: [dataURL]
+function resetForm() {
+  editId = null; existing = []; pending = [];
+  $('f-item').value = ''; $('f-cat').value = 'Peças'; $('f-qty').value = '1'; $('f-price').value = '';
+  $('f-sup').value = ''; $('f-notes').value = ''; $('f-date').value = today();
+  $('formTitle').textContent = 'Nova despesa'; $('saveBtn').textContent = 'Guardar despesa'; $('cancelEdit').hidden = true;
+  updateLineTotal(); renderFormPhotos();
+}
+function newExpense() {
+  if (!car()) { show('resumo'); return openCarSheet(null); }
+  if (editId) resetForm();
+  show('nova');
+}
+function editExpense(e) {
+  closeSheet(); resetForm(); editId = e.id;
+  $('f-item').value = e.name; $('f-cat').value = CATS[e.category] ? e.category : 'Outros';
+  $('f-qty').value = fmtNum(e.qty); $('f-price').value = fmtNum(e.price);
+  $('f-sup').value = e.supplier || ''; $('f-notes').value = e.notes || ''; $('f-date').value = e.date || today();
+  existing = [...(e.photoIds || []).filter(id => photoCache.has(id)).map(id => ({id, src: photoCache.get(id)})), ...(e.photos || []).map(src => ({src}))];
+  $('formTitle').textContent = 'Editar despesa'; $('saveBtn').textContent = 'Guardar alterações'; $('cancelEdit').hidden = false;
+  updateLineTotal(); renderFormPhotos(); show('nova');
+}
+function cancelEdit() { resetForm(); show('hist'); }
+function updateLineTotal() {
+  const q = parseNum($('f-qty').value), p = parseNum($('f-price').value);
+  $('lineTotal').textContent = money(Number.isFinite(q) && Number.isFinite(p) ? q * p : 0);
+}
+function renderFormPhotos() {
+  const tiles = [
+    ...existing.map((p, i) => h('div', {class: 'ptile'}, h('img', {src: p.src, alt: '', onclick: () => openPhoto(p.src)}),
+      h('button', {class: 'del', type: 'button', text: '×', 'aria-label': 'Remover', onclick: () => { existing.splice(i, 1); renderFormPhotos(); }}))),
+    ...pending.map((src, i) => h('div', {class: 'ptile'}, h('img', {src, alt: '', onclick: () => openPhoto(src)}),
+      h('button', {class: 'del', type: 'button', text: '×', 'aria-label': 'Remover', onclick: () => { pending.splice(i, 1); renderFormPhotos(); }})))
+  ];
+  const input = h('input', {type: 'file', accept: 'image/*', multiple: true, onchange: addPhotos});
+  const add = h('label', {class: 'padd'}, input);
+  add.insertAdjacentHTML('afterbegin', '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Adicionar</span>');
+  $('f-photos').replaceChildren(...tiles, add);
+}
+async function addPhotos(ev) {
+  const files = Array.from(ev.target.files || []); ev.target.value = '';
+  if (!files.length) return;
+  $('saveBtn').disabled = true; $('saveBtn').textContent = 'A preparar fotografias…';
+  try { for (const f of files) { try { pending.push(await compressPhoto(f)); } catch (e) { toast(e.message); } } }
+  finally { $('saveBtn').disabled = false; $('saveBtn').textContent = editId ? 'Guardar alterações' : 'Guardar despesa'; }
+  renderFormPhotos();
+}
+async function saveExpense() {
+  if (busy) return;
+  const c = editId ? db.cars.find(x => x.expenses.some(e => e.id === editId)) : car();
+  if (!c) return openCarSheet(null);
+  const name = $('f-item').value.trim(), qty = parseNum($('f-qty').value), price = parseNum($('f-price').value);
+  if (!name) { $('f-item').focus(); return toast('Escreve a peça ou o trabalho'); }
+  if (!Number.isFinite(qty) || qty <= 0) { $('f-qty').focus(); return toast('Quantidade inválida'); }
+  if (!Number.isFinite(price) || price < 0) { $('f-price').focus(); return toast('Preço inválido. Ex.: 12,50'); }
+  busy = true; $('saveBtn').disabled = true;
+  let newIds = [];
+  try {
+    const data = {name, category: $('f-cat').value, qty, price, supplier: $('f-sup').value.trim(), notes: $('f-notes').value.trim(), date: $('f-date').value || today()};
+    if (pending.length && idb) newIds = await storePhotos(pending);
+    const photoIds = [...existing.filter(p => p.id).map(p => p.id), ...newIds];
+    const inline = [...existing.filter(p => !p.id).map(p => p.src), ...(idb ? [] : pending)];
+    const entry = {...data, photoIds}; if (inline.length) entry.photos = inline;
+    if (editId) {
+      const i = c.expenses.findIndex(e => e.id === editId), old = c.expenses[i];
+      const removed = (old.photoIds || []).filter(id => !photoIds.includes(id));
+      c.expenses[i] = {id: old.id, ...entry};
+      if (!save()) { c.expenses[i] = old; await deletePhotoIds(newIds); return; }
+      await deletePhotoIds(removed);
+      resetForm(); renderAll(); show('hist'); toast('Alterações guardadas');
+    } else {
+      c.expenses.push({id: newId(), ...entry});
+      if (!save()) { c.expenses.pop(); await deletePhotoIds(newIds); return; }
+      resetForm(); renderAll(); toast('Despesa guardada · ' + money(qty * price));
+    }
+  } catch (e) { await deletePhotoIds(newIds); alert('Não foi possível guardar: ' + e.message); }
+  finally { busy = false; $('saveBtn').disabled = false; }
+}
+
+/* ---------- detalhe ---------- */
+function openExpense(c, e) {
+  const pics = photosOf(e);
+  const det = (k, v) => v ? h('div', {class: 'row'}, h('span', {class: 'grow', text: k}), h('span', {class: 'val', text: v})) : null;
+  openSheet(e.name,
+    h('div', {class: 'detail-amt', text: money(e.qty * e.price)}),
+    h('div', {class: 'group'},
+      det('Data', fmtDate(e.date)), det('Categoria', e.category), det('Quantidade', fmtNum(e.qty)),
+      det('Preço unitário', money(e.price)), det('Fornecedor', e.supplier), det('Carro', c.name)),
+    e.notes ? [h('p', {class: 'ghead', text: 'Notas'}), h('div', {class: 'group'}, h('div', {class: 'row', style: 'white-space:pre-wrap', text: e.notes}))] : null,
+    pics.length ? [h('p', {class: 'ghead', text: 'Fotografias (' + pics.length + ')'}), h('div', {class: 'gallery'}, pics.map(src => h('img', {src, alt: '', onclick: () => openPhoto(src)})))] : null,
+    h('button', {class: 'btn', type: 'button', text: 'Editar', onclick: () => editExpense(e)}),
+    h('button', {class: 'btn red', type: 'button', text: 'Eliminar despesa', onclick: async () => {
+      if (!confirm('Eliminar esta despesa?')) return;
+      const before = c.expenses; c.expenses = c.expenses.filter(x => x.id !== e.id);
+      if (!save()) { c.expenses = before; return; }
+      await deletePhotoIds(e.photoIds || []); closeSheet(); renderAll(); toast('Despesa eliminada');
+    }}));
+}
+
+/* ---------- ecrãs ---------- */
+function expenseRow(c, e, showDate = true) {
+  const pics = photosOf(e);
+  const lead = pics.length ? h('img', {class: 'dot', src: pics[0], alt: ''}) : h('span', {class: 'dot', style: 'background:' + (CATS[e.category] || '#8e8e93'), text: (e.category || '?')[0]});
+  return h('button', {class: 'row', type: 'button', onclick: () => openExpense(c, e)}, lead,
+    h('div', {class: 'grow'}, h('div', {class: 'title', text: e.name}),
+      h('div', {class: 'sub', text: [e.category, showDate ? fmtDate(e.date) : null, e.supplier, pics.length > 1 ? pics.length + ' fotos' : null].filter(Boolean).join(' · ')})),
+    h('span', {class: 'amt', text: money(e.qty * e.price)}), h('span', {class: 'chev', text: '›'}));
+}
+function renderInstall() {
+  const box = $('installCard'); box.replaceChildren();
+  let off = false; try { off = localStorage.getItem(HINT_KEY) === '1'; } catch (_) {}
+  if (standalone || off) return;
+  const dismiss = h('button', {class: 'x', type: 'button', text: 'Agora não', onclick: () => { try { localStorage.setItem(HINT_KEY, '1'); } catch (_) {} renderInstall(); }});
+  if (isIOS) {
+    const n = h('div', {class: 'notice'});
+    n.innerHTML = '<b>Instalar no iPhone</b><ol><li>Toca em <b style="display:inline">Partilhar</b> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5v10h14V11h-1"/></svg> no Safari.</li><li>Escolhe <b style="display:inline">Adicionar ao ecrã principal</b>.</li><li>Abre a app <b style="display:inline">Garagem</b> pelo ícone.</li></ol>Instala antes de registar dados: a app instalada guarda os dados à parte do Safari e não os perde ao fim de alguns dias sem uso.';
+    n.append(h('br'), dismiss); box.append(n);
+  } else {
+    box.append(h('div', {class: 'notice warn'}, h('b', {text: 'Feita para iPhone'}), 'Abre este endereço no Safari do iPhone e instala-a no ecrã principal. Aqui funciona apenas para consulta e testes.', h('br'), dismiss));
+  }
+  if (!storageOK) box.append(h('div', {class: 'notice warn'}, h('b', {text: 'Dados não estão a ser guardados'}), 'Esta forma de abertura (ex.: navegação privada) não permite guardar. Exporta uma cópia antes de fechar.'));
+}
+function renderResumo() {
+  const body = $('resumoBody'), c = car(); body.replaceChildren();
+  if (!c) {
+    body.append(h('div', {class: 'empty'}, h('div', {class: 'ic', text: '🚗'}), h('p', {text: 'Ainda não tens carros. Adiciona o primeiro para começar a registar despesas.'})),
+      h('button', {class: 'btn', type: 'button', text: 'Adicionar carro', onclick: () => openCarSheet(null)}));
+    return;
+  }
+  const sum = sumOf(c), nPhotos = c.expenses.reduce((s, e) => s + photosOf(e).length, 0);
+  const hero = h('div', {class: 'hero'}, h('div', {class: 'lbl', text: c.name}), h('div', {class: 'big', text: money(sum)}));
+  if (c.budget > 0) {
+    const pct = sum / c.budget, m = h('div', {class: 'meter' + (pct > 1 ? ' over' : pct > .85 ? ' warn' : '')}, h('i', {style: 'width:' + Math.min(100, pct * 100).toFixed(1) + '%'}));
+    hero.append(m, h('div', {class: 'foot'}, h('span', {text: Math.round(pct * 100) + '% de ' + money(c.budget)}),
+      h('span', {text: sum <= c.budget ? 'Faltam ' + money(c.budget - sum) : 'Excedido ' + money(sum - c.budget)})));
+  } else {
+    hero.append(h('button', {type: 'button', style: 'color:#fff;font-size:15px;text-decoration:underline', text: 'Definir orçamento', onclick: () => openCarSheet(c)}));
+  }
+  body.append(hero,
+    h('div', {class: 'stats'},
+      h('div', {class: 'stat'}, h('b', {text: c.expenses.length}), h('span', {text: 'despesas'})),
+      h('div', {class: 'stat'}, h('b', {text: nPhotos}), h('span', {text: 'fotografias'}))));
+  if (!c.expenses.length) {
+    body.append(h('div', {class: 'empty'}, h('p', {text: 'Ainda sem despesas neste carro.'})), h('button', {class: 'btn', type: 'button', text: 'Registar primeira despesa', onclick: newExpense}));
+    return;
+  }
+  const byCat = {}; c.expenses.forEach(e => byCat[e.category] = (byCat[e.category] || 0) + e.qty * e.price);
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]), max = cats[0][1] || 1;
+  body.append(h('p', {class: 'ghead', text: 'Por categoria'}),
+    h('div', {class: 'group'}, cats.map(([k, v]) => h('div', {class: 'row'},
+      h('span', {class: 'dot', style: 'width:12px;height:12px;flex-basis:12px;border-radius:50%;background:' + (CATS[k] || '#8e8e93')}),
+      h('div', {class: 'grow'}, h('div', {style: 'display:flex;justify-content:space-between'}, h('span', {text: k}), h('span', {class: 'amt', text: money(v)})),
+        h('div', {class: 'cbar'}, h('i', {style: 'width:' + (v / max * 100).toFixed(1) + '%;background:' + (CATS[k] || '#8e8e93')})))))));
+  const recent = c.expenses.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 4);
+  body.append(h('p', {class: 'ghead', text: 'Últimas despesas'}), h('div', {class: 'group'}, recent.map(e => expenseRow(c, e)),
+    h('button', {class: 'row link', type: 'button', text: 'Ver histórico completo', onclick: () => show('hist')})));
+}
+function renderHist() {
+  const body = $('histBody'), c = car(); body.replaceChildren();
+  if (!c) return body.append(h('div', {class: 'empty', text: 'Adiciona um carro primeiro.'}));
+  const q = $('q').value.trim().toLowerCase();
+  const list = c.expenses.filter(e => !q || [e.name, e.supplier, e.category, e.notes].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  if (!list.length) return body.append(h('div', {class: 'empty', text: q ? 'Nada encontrado.' : 'Ainda sem despesas neste carro.'}));
+  const groups = new Map();
+  list.forEach(e => { const k = String(e.date).slice(0, 7); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(e); });
+  for (const [k, items] of groups) {
+    const [y, m] = k.split('-'), label = m ? new Date(+y, +m - 1, 1).toLocaleDateString('pt-PT', {month: 'long', year: 'numeric'}) : k;
+    const tot = items.reduce((s, e) => s + e.qty * e.price, 0);
+    body.append(h('p', {class: 'ghead', style: 'display:flex;justify-content:space-between'}, h('span', {text: label}), h('span', {text: money(tot)})),
+      h('div', {class: 'group'}, items.map(e => expenseRow(c, e))));
+  }
+}
+function renderMais() {
+  const body = $('maisBody'), c = car(); body.replaceChildren();
+  const navRow = (text, onclick, sub) => h('button', {class: 'row', type: 'button', onclick}, h('div', {class: 'grow'}, h('div', {class: 'title', text}), sub ? h('div', {class: 'sub', text: sub}) : null), h('span', {class: 'chev', text: '›'}));
+  body.append(h('p', {class: 'ghead', text: 'Carros'}),
+    h('div', {class: 'group'}, db.cars.map(x => navRow(x.name, () => openCarSheet(x), x.expenses.length + ' despesas · ' + money(sumOf(x)) + (x.budget ? ' de ' + money(x.budget) : ''))),
+      h('button', {class: 'row link', type: 'button', text: '＋ Adicionar carro', onclick: () => openCarSheet(null)})));
+  body.append(h('p', {class: 'ghead', text: 'Relatórios'}),
+    h('div', {class: 'group'},
+      navRow('Relatório PDF deste carro', () => openReport(false), c ? c.name : null),
+      navRow('Relatório PDF de todos os carros', () => openReport(true)),
+      navRow('Exportar despesas (CSV / Excel)', exportCSV)));
+  const imp = h('input', {type: 'file', accept: '.json,application/json', hidden: true, onchange: importJSON});
+  body.append(h('p', {class: 'ghead', text: 'Cópias de segurança'}),
+    h('div', {class: 'group'},
+      navRow('Exportar cópia de segurança', exportJSON, 'Inclui fotografias · guarda em Ficheiros ou iCloud'),
+      h('label', {class: 'row', style: 'cursor:pointer'}, h('div', {class: 'grow'}, h('div', {class: 'title', text: 'Importar cópia de segurança'}), h('div', {class: 'sub', text: 'Também aceita cópias da versão antiga'})), h('span', {class: 'chev', text: '›'}), imp)),
+    h('p', {class: 'gfoot', text: 'Os dados ficam só neste iPhone. Faz uma cópia regularmente e guarda-a no iCloud Drive.'}));
+  const info = h('div', {class: 'sub', text: 'A calcular…'});
+  body.append(h('p', {class: 'ghead', text: 'Armazenamento'}),
+    h('div', {class: 'group'},
+      h('div', {class: 'row'}, h('div', {class: 'grow'}, h('div', {text: 'Espaço utilizado'}), info)),
+      h('div', {class: 'row'}, h('span', {class: 'grow', text: 'Modo'}), h('span', {class: 'val', text: standalone ? 'App instalada' : 'Safari'}))),
+    h('p', {class: 'gfoot', text: 'Garagem Manager · versão 6.0 para iPhone'}));
+  if (navigator.storage && navigator.storage.estimate) navigator.storage.estimate().then(({usage, quota}) => {
+    const mb = n => (n / 1048576).toLocaleString('pt-PT', {maximumFractionDigits: 1}) + ' MB';
+    info.textContent = mb(usage || 0) + (quota ? ' de ' + mb(quota) + ' disponíveis' : '');
+  }).catch(() => info.textContent = '—'); else info.textContent = '—';
+}
+function renderAll() {
+  const c = car(); $('chipName').textContent = c ? c.name : 'Adicionar carro';
+  renderInstall(); renderResumo(); renderHist(); renderMais();
+}
+
+/* ---------- exportar / importar ---------- */
+function exportJSON() {
+  const out = {version: 2, app: 'Garagem Manager', exportado: new Date().toISOString(),
+    cars: db.cars.map(c => ({...c, expenses: c.expenses.map(e => { const {photoIds, photo, ...rest} = e; return {...rest, photos: photosOf(e)}; })}))};
+  shareFile(new File([JSON.stringify(out)], 'garagem_backup_' + today() + '.json', {type: 'application/json'}));
+}
+function importJSON(ev) {
+  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    let v; try { v = JSON.parse(r.result); if (!v || !Array.isArray(v.cars)) throw Error(); } catch (_) { return alert('Ficheiro inválido.'); }
+    if (!confirm('Substituir os dados atuais pelos da cópia (' + v.cars.length + ' carros)?')) return;
+    try {
+      v = normalize(v); v.cars.forEach(c => c.expenses.forEach(e => delete e.photoIds));
+      if (idb) { await idbTx(st => st.clear()); photoCache.clear(); }
+      db = v; await migrate(); save(); selId = db.cars[0] ? db.cars[0].id : null; renderAll(); toast('Cópia de segurança importada');
+    } catch (e) { alert('Erro ao importar: ' + e.message); }
+  };
+  r.readAsText(f);
+}
+function exportCSV() {
+  const n = v => String(+Number(v).toFixed(2)).replace('.', ',');
+  const rows = [['Carro', 'Data', 'Categoria', 'Descrição', 'Quantidade', 'Preço unitário', 'Total', 'Fornecedor', 'Notas']];
+  db.cars.forEach(c => c.expenses.forEach(e => rows.push([c.name, e.date, e.category, e.name, n(e.qty), n(e.price), n(e.qty * e.price), e.supplier, e.notes])));
+  const csv = '﻿' + rows.map(r => r.map(v => '"' + String(v ?? '').replaceAll('"', '""') + '"').join(';')).join('\r\n');
+  shareFile(new File([csv], 'garagem_despesas_' + today() + '.csv', {type: 'text/csv'}));
+}
+
+/* ---------- relatório (imprimir / PDF) ---------- */
+function openReport(all) {
+  const cars = all ? db.cars : [car()].filter(Boolean);
+  if (!cars.length) return toast('Adiciona primeiro um carro');
+  let grand = 0;
+  const sections = cars.map(c => {
+    const ex = c.expenses.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    const total = sumOf(c); grand += total;
+    const rows = ex.map(e => `<tr><td>${esc(fmtDate(e.date))}</td><td>${esc(e.category)}</td><td>${esc(e.name)}${e.notes ? '<br><small>' + esc(e.notes) + '</small>' : ''}</td><td>${esc(e.supplier)}</td><td class="n">${esc(fmtNum(e.qty))}</td><td class="n">${money(e.price)}</td><td class="n">${money(e.qty * e.price)}</td></tr>`).join('');
+    const photos = ex.map(e => { const p = photosOf(e); return p.length ? `<div class="ph"><b>${esc(fmtDate(e.date))} · ${esc(e.name)}</b><br>${p.map(s => `<img src="${s}">`).join('')}</div>` : ''; }).join('');
+    return `<h3>${esc(c.name)}</h3><p>Orçamento: ${money(c.budget)} · Total gasto: <b>${money(total)}</b> · Diferença: ${money(c.budget - total)}</p>
+      <table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Fornecedor</th><th>Qtd.</th><th>Preço</th><th>Total</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="7">Sem despesas registadas</td></tr>'}</tbody></table><p class="tot">Total do carro: ${money(total)}</p>
+      ${photos ? '<p><b>Registo fotográfico</b></p>' + photos : ''}`;
+  }).join('');
+  $('report').innerHTML = `<div class="rtools"><button type="button" onclick="closeReport()">Fechar</button><button type="button" class="p" onclick="window.print()">Imprimir / PDF</button></div>
+    <div class="rbody"><h2>Garagem Manager · Relatório de custos</h2><p>Emitido em ${new Date().toLocaleDateString('pt-PT')}</p>${sections}${all ? `<p class="grand">Total geral: ${money(grand)}</p>` : ''}
+    <p style="color:#777;font-size:12px;margin-top:20px" class="hint-pdf">No iPhone: toca em “Imprimir / PDF”, depois em Partilhar ⬆︎ para guardar o PDF em Ficheiros ou enviar.</p></div>`;
+  document.body.classList.add('reporting'); window.scrollTo(0, 0);
+}
+function closeReport() { document.body.classList.remove('reporting'); $('report').innerHTML = ''; }
+
+/* ---------- arranque ---------- */
+(async function init() {
+  resetForm(); renderAll();
+  idb = await idbOpen();
+  if (idb) { try { await idbLoadAll(); if (await migrate()) save(); } catch (e) { idb = null; alert('Não foi possível carregar as fotografias: ' + e.message); } }
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (_) {}
+  renderAll();
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
